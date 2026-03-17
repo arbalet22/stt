@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учим алфавит - Быстрая озвучка</title>
+    <style>
+        /* Стили такие же, как в предыдущей версии */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+        }
+
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            padding: 15px 12px;
+            text-align: center;
+            border: 4px solid #ffd966;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #ff6f61;
+            text-shadow: 2px 2px 0 #ffd966;
+            margin-bottom: 5px;
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .mode-btn {
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 60px;
+            background: #e0e0e0;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+            box-shadow: 0 5px 0 #999;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .mode-btn.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #ffd966;
+            box-shadow: 0 5px 0 #2d6a4f;
+        }
+
+        .mode-btn:first-child.active {
+            background: #ff6f61;
+            box-shadow: 0 5px 0 #b3412e;
+        }
+
+        .sound-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .sound-toggle {
+            background: #4b7bec;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: 2px solid #ffd966;
+            box-shadow: 0 3px 0 #2c3e50;
+        }
+
+        .sound-toggle:active {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 #2c3e50;
+        }
+
+        .sound-status {
+            font-size: 1rem;
+            color: #4b7bec;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            border: 2px solid #4b7bec;
+        }
+
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            padding: 5px;
+        }
+
+        .letter-card {
+            background: #fff;
+            border: 3px solid #4b7bec;
+            border-radius: 18px;
+            padding: 15px 2px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 5px 0 #2c3e50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            position: relative;
+        }
+
+        .letter-card.speaking {
+            background: #b7e4c7;
+            border-color: #2d6a4f;
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #2c3e50;
+        }
+
+        .sound-indicator {
+            font-size: 0.8rem;
+            margin-top: 2px;
+            color: #666;
+        }
+
+        .letter-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #2c3e50;
+        }
+
+        .letter-card.vowel {
+            border-color: #fc5c65;
+            background: linear-gradient(145deg, #fff0f0, #ffe0e0);
+        }
+
+        .quiz-container {
+            background: #f7d794;
+            border-radius: 40px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 3px solid #f19066;
+        }
+
+        .quiz-question {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 50px;
+            border: 4px solid #e84118;
+        }
+
+        .quiz-image {
+            font-size: 4rem;
+            margin: 10px 0;
+            background: #ffeaa5;
+            padding: 15px;
+            border-radius: 80px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 18px 15px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            border: 4px solid #4b7bec;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 6px 0 #2c3e50;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .quiz-option:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #2c3e50;
+        }
+
+        .quiz-option.correct {
+            background: #b7e4c7;
+            border-color: #2d6a4f;
+            box-shadow: 0 6px 0 #1b4332;
+        }
+
+        .quiz-option.wrong {
+            background: #ffb3b3;
+            border-color: #b3412e;
+            box-shadow: 0 6px 0 #7f2b1d;
+        }
+
+        .quiz-option.disabled {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .quiz-feedback {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            min-height: 60px;
+        }
+
+        .quiz-next {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            font-size: 1.5rem;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 0 #2d6a4f;
+            transition: all 0.1s;
+            width: 100%;
+            max-width: 280px;
+            margin: 5px auto;
+        }
+
+        .quiz-next:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #2d6a4f;
+        }
+
+        .quiz-next.hidden {
+            display: none;
+        }
+
+        .score {
+            font-size: 1.4rem;
+            background: #4b7bec;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        .info-panel {
+            background: #f7d794;
+            border-radius: 50px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 3px solid #f19066;
+        }
+
+        .selected-info {
+            font-size: 1.5rem;
+            color: #3d3d3d;
+        }
+
+        .selected-info span {
+            font-weight: bold;
+            color: #e84118;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 8px 0;
+            border: 3px solid #e84118;
+            font-size: 2rem;
+        }
+
+        .example-word {
+            font-size: 1.8rem;
+            color: #1e272e;
+            background: #ffb8b8;
+            padding: 12px 20px;
+            border-radius: 60px;
+            display: inline-block;
+            margin-top: 8px;
+            border: 3px solid #b33939;
+        }
+
+        .loading-indicator {
+            font-size: 1rem;
+            color: #4b7bec;
+            margin: 5px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 5px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        footer {
+            margin-top: 12px;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🔤 АБВГДейка 🔤</h1>
+        
+        <div class="mode-switch">
+            <button id="mode1Btn" class="mode-btn active">📖 Учим буквы</button>
+            <button id="mode2Btn" class="mode-btn">🎮 Угадай букву</button>
+        </div>
+
+        <div class="sound-controls">
+            <button id="soundToggle" class="sound-toggle">🔊 Звук вкл</button>
+            <span id="soundStatus" class="sound-status">✅ Звук работает</span>
+        </div>
+
+        <!-- Индикатор загрузки -->
+        <div id="loadingIndicator" class="loading-indicator">⏳ Загрузка звуков...</div>
+        <div id="progressBar" class="progress-bar">
+            <div id="progressFill" class="progress-bar-fill"></div>
+        </div>
+
+        <!-- Режим 1: Алфавит -->
+        <div id="mode1" class="game-area">
+            <div id="alphabetGrid" class="alphabet-grid"></div>
+
+            <div class="info-panel">
+                <div class="selected-info">
+                    Буква: <span id="selectedLetter">-</span>
+                </div>
+                <div id="exampleContainer">
+                    <div class="example-word" id="exampleWord">
+                        👆 Нажми на букву!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Режим 2: Викторина -->
+        <div id="mode2" class="game-area hidden">
+            <div class="quiz-container">
+                <div class="quiz-question" id="questionText">Какая буква?</div>
+                <div id="quizImage" class="quiz-image">❓</div>
+                
+                <div id="quizOptions" class="quiz-options"></div>
+
+                <div id="quizFeedback" class="quiz-feedback">👆 Выбери ответ</div>
+                
+                <button id="nextQuestionBtn" class="quiz-next hidden">➡️ Дальше</button>
+                
+                <div id="scoreDisplay" class="score">⭐ 0</div>
+            </div>
+        </div>
+
+        <footer>
+            📖 Режим 1: буквы говорят (быстро!) | 🎮 Режим 2: звуки ответов
+        </footer>
+    </div>
+
+    <script>
+        // ========== ДАННЫЕ ==========
+        const alphabetData = {
+            'А': ['Арбуз', '🍉'], 'Б': ['Барабан', '🥁'], 'В': ['Велосипед', '🚲'],
+            'Г': ['Гриб', '🍄'], 'Д': ['Дом', '🏠'], 'Е': ['Енот', '🦝'],
+            'Ё': ['Ёжик', '🦔'], 'Ж': ['Жук', '🐞'], 'З': ['Зайка', '🐇'],
+            'И': ['Индюк', '🦃'], 'Й': ['Йогурт', '🥛'], 'К': ['Кошка', '🐱'],
+            'Л': ['Лиса', '🦊'], 'М': ['Медведь', '🐻'], 'Н': ['Носорог', '🦏'],
+            'О': ['Обезьяна', '🐒'], 'П': ['Пингвин', '🐧'], 'Р': ['Рыба', '🐟'],
+            'С': ['Сова', '🦉'], 'Т': ['Тигр', '🐯'], 'У': ['Улитка', '🐌'],
+            'Ф': ['Фламинго', '🦩'], 'Х': ['Хомяк', '🐹'], 'Ц': ['Цыпленок', '🐥'],
+            'Ч': ['Черепаха', '🐢'], 'Ш': ['Шарик', '🎈'], 'Щ': ['Щенок', '🐕'],
+            'Ъ': ['Подъезд', '🚪'], 'Ы': ['Сыр', '🧀'], 'Ь': ['Лось', '🫎'],
+            'Э': ['Эскимо', '🍦'], 'Ю': ['Юла', '🪀'], 'Я': ['Яблоко', '🍎']
+        };
+
+        const letters = Object.keys(alphabetData);
+        const vowels = ['А','Е','Ё','И','О','У','Ы','Э','Ю','Я'];
+
+        // ========== НАСТРОЙКА ЗВУКОВ ==========
+        const letterSoundFiles = {
+            'А': 'sounds/а.mp3', 'б': 'sounds/Б.mp3', 'в': 'sounds/В.mp3',
+            'Г': 'sounds/г.mp3', 'д': 'sounds/Д.mp3', 'е': 'sounds/Е.mp3',
+            'Ё': 'sounds/ё.mp3', 'ж': 'sounds/Ж.mp3', 'з': 'sounds/З.mp3',
+            'И': 'sounds/и.mp3', 'й': 'sounds/Й.mp3', 'к': 'sounds/К.mp3',
+            'Л': 'sounds/л.mp3', 'м': 'sounds/М.mp3', 'н': 'sounds/Н.mp3',
+            'О': 'sounds/о.mp3', 'п': 'sounds/П.mp3', 'р': 'sounds/Р.mp3',
+            'С': 'sounds/с.mp3', 'т': 'sounds/Т.mp3', 'у': 'sounds/У.mp3',
+            'Ф': 'sounds/ф.mp3', 'х': 'sounds/Х.mp3', 'ц': 'sounds/Ц.mp3',
+            'Ч': 'sounds/ч.mp3', 'ш': 'sounds/Ш.mp3', 'щ': 'sounds/Щ.mp3',
+            'Ъ': 'sounds/ъ.mp3', 'ы': 'sounds/Ы.mp3', 'ь': 'sounds/Ь.mp3',
+            'Э': 'sounds/э.mp3', 'ю': 'sounds/Ю.mp3', 'я': 'sounds/Я.mp3'
+        };
+
+        const quizSoundFiles = {
+            'correct': 'sounds/правильно.mp3',
+            'wrong': 'sounds/неправильно.mp3'
+        };
+
+        // ========== ПРЕДЗАГРУЗКА ЗВУКОВ ==========
+        // Хранилище предзагруженных аудио
+        const preloadedAudios = {};
+        let totalSounds = 0;
+        let loadedSounds = 0;
+        let soundsLoaded = false;
+
+        // Элементы
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+
+        // Функция предзагрузки одного звука
+        function preloadSound(key, path) {
+            return new Promise((resolve, reject) => {
+                if (!path) {
+                    resolve();
+                    return;
+                }
+                
+                const audio = new Audio();
+                
+                audio.addEventListener('canplaythrough', () => {
+                    preloadedAudios[key] = audio;
+                    loadedSounds++;
+                    updateProgress();
+                    resolve();
+                }, { once: true });
+                
+                audio.addEventListener('error', (e) => {
+                    console.warn(`Не удалось загрузить ${path}:`, e);
+                    loadedSounds++;
+                    updateProgress();
+                    resolve(); // Не reject, чтобы продолжить загрузку остальных
+                });
+                
+                audio.preload = 'auto';
+                audio.src = path;
+                audio.load();
+            });
+        }
+
+        // Обновление прогресса
+        function updateProgress() {
+            const percent = (loadedSounds / totalSounds) * 100;
+            progressFill.style.width = percent + '%';
+            
+            if (loadedSounds === totalSounds) {
+                loadingIndicator.textContent = '✅ Все звуки загружены! Можно играть';
+                setTimeout(() => {
+                    loadingIndicator.style.opacity = '0';
+                    progressBar.style.opacity = '0';
+                }, 1000);
+                soundsLoaded = true;
+            } else {
+                loadingIndicator.textContent = `⏳ Загрузка звуков: ${loadedSounds}/${totalSounds}`;
+            }
+        }
+
+        // Предзагрузка всех звуков
+        async function preloadAllSounds() {
+            // Собираем все звуки для предзагрузки
+            const allSounds = [];
+            
+            // Звуки букв
+            Object.entries(letterSoundFiles).forEach(([key, path]) => {
+                if (path) {
+                    allSounds.push({ key: `letter_${key}`, path });
+                }
+            });
+            
+            // Звуки викторины
+            Object.entries(quizSoundFiles).forEach(([key, path]) => {
+                if (path) {
+                    allSounds.push({ key: `quiz_${key}`, path });
+                }
+            });
+            
+            totalSounds = allSounds.length;
+            progressBar.style.display = 'block';
+            
+            // Загружаем все звуки параллельно
+            await Promise.all(allSounds.map(sound => preloadSound(sound.key, sound.path)));
+        }
+
+        // Функция мгновенного воспроизведения
+        function playPreloadedSound(key) {
+            if (!soundEnabled) return;
+            
+            const audio = preloadedAudios[key];
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            } else {
+                console.warn(`Звук ${key} не предзагружен`);
+            }
+        }
+
+        function playLetterSound(letter) {
+            if (currentMode !== 1) return;
+            playPreloadedSound(`letter_${letter}`);
+        }
+
+        function playQuizSound(type) {
+            if (currentMode !== 2) return;
+            playPreloadedSound(`quiz_${type}`);
+        }
+
+        // ========== ОСТАЛЬНАЯ ЛОГИКА ==========
+        let soundEnabled = true;
+        let currentMode = 1;
+
+        const grid = document.getElementById('alphabetGrid');
+        const selectedLetterSpan = document.getElementById('selectedLetter');
+        const exampleWordDiv = document.getElementById('exampleWord');
+        const mode1 = document.getElementById('mode1');
+        const mode2 = document.getElementById('mode2');
+        const mode1Btn = document.getElementById('mode1Btn');
+        const mode2Btn = document.getElementById('mode2Btn');
+        const soundToggle = document.getElementById('soundToggle');
+        const soundStatus = document.getElementById('soundStatus');
+        const quizOptions = document.getElementById('quizOptions');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const nextBtn = document.getElementById('nextQuestionBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const quizImage = document.getElementById('quizImage');
+        const questionText = document.getElementById('questionText');
+
+        let currentCorrectLetter = '';
+        let score = 0;
+        let canAnswer = true;
+
+        // Управление звуком
+        soundToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? '🔊 Звук вкл' : '🔇 Звук выкл';
+            soundStatus.textContent = soundEnabled ? '✅ Звук работает' : '🔇 Звук отключен';
+            soundStatus.style.color = soundEnabled ? '#4CAF50' : '#999';
+        });
+
+        // Режим 1
+        function updateSelectedInfo(letter) {
+            selectedLetterSpan.textContent = letter;
+            if (alphabetData[letter]) {
+                const [word, emoji] = alphabetData[letter];
+                exampleWordDiv.innerHTML = `${emoji} ${word} ${emoji}`;
+            }
+            
+            playLetterSound(letter);
+            highlightSpeakingLetter(letter);
+        }
+
+        function highlightSpeakingLetter(letter) {
+            document.querySelectorAll('.letter-card').forEach(card => {
+                card.classList.remove('speaking');
+                if (card.textContent.trim() === letter) {
+                    card.classList.add('speaking');
+                    setTimeout(() => card.classList.remove('speaking'), 500);
+                }
+            });
+        }
+
+        // Создаем буквы
+        letters.forEach(letter => {
+            const card = document.createElement('div');
+            card.className = 'letter-card';
+            if (vowels.includes(letter)) card.classList.add('vowel');
+            card.innerHTML = `${letter}<span class="sound-indicator">🔊</span>`;
+            
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentMode === 1) {
+                    updateSelectedInfo(letter);
+                    card.style.transform = 'translateY(4px)';
+                    card.style.boxShadow = '0 1px 0 #2c3e50';
+                    setTimeout(() => {
+                        card.style.transform = '';
+                        card.style.boxShadow = '0 5px 0 #2c3e50';
+                    }, 120);
+                }
+            });
+            grid.appendChild(card);
+        });
+
+        // Режим 2
+        function getRandomLetters(exclude, count) {
+            const available = letters.filter(l => l !== exclude);
+            const result = [];
+            while (result.length < count && available.length > 0) {
+                const randomIndex = Math.floor(Math.random() * available.length);
+                const letter = available[randomIndex];
+                if (!result.includes(letter)) result.push(letter);
+            }
+            return result;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function newQuestion() {
+            const randomIndex = Math.floor(Math.random() * letters.length);
+            currentCorrectLetter = letters[randomIndex];
+            
+            const [word, emoji] = alphabetData[currentCorrectLetter];
+            quizImage.textContent = emoji || '🔤';
+            questionText.innerHTML = `❓ ${word}`;
+            
+            const wrongLetters = getRandomLetters(currentCorrectLetter, 2);
+            let options = [currentCorrectLetter, ...wrongLetters];
+            options = shuffleArray(options);
+            
+            quizOptions.innerHTML = '';
+            options.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = letter;
+                
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (!canAnswer) return;
+                    
+                    canAnswer = false;
+                    
+                    if (letter === currentCorrectLetter) {
+                        playQuizSound('correct');
+                        btn.classList.add('correct');
+                        quizFeedback.innerHTML = '✅ Правильно! Молодец! ⭐';
+                        score += 1;
+                        scoreDisplay.textContent = `⭐ ${score}`;
+                    } else {
+                        playQuizSound('wrong');
+                        btn.classList.add('wrong');
+                        quizFeedback.innerHTML = `❌ Неправильно. Это буква ${currentCorrectLetter}!`;
+                        
+                        document.querySelectorAll('.quiz-option').forEach(b => {
+                            if (b.textContent === currentCorrectLetter) {
+                                b.classList.add('correct');
+                            }
+                        });
+                    }
+                    
+                    document.querySelectorAll('.quiz-option').forEach(b => {
+                        b.disabled = true;
+                        b.classList.add('disabled');
+                    });
+                    
+                    nextBtn.classList.remove('hidden');
+                });
+                
+                quizOptions.appendChild(btn);
+            });
+            
+            nextBtn.classList.add('hidden');
+            quizFeedback.innerHTML = '👆 Выбери букву';
+            canAnswer = true;
+        }
+
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            newQuestion();
+        });
+
+        // Переключение режимов
+        mode1Btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentMode = 1;
+            mode1.classList.remove('hidden');
+            mode2.classList.add('hidden');
+            mode1Btn.classList.add('active');
+            mode2Btn.classList.remove('active');
+        });
+
+        mode2Btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentMode = 2;
+            mode1.classList.add('hidden');
+            mode2.classList.remove('hidden');
+            mode1Btn.classList.remove('active');
+            mode2Btn.classList.add('active');
+            score = 0;
+            scoreDisplay.textContent = '⭐ 0';
+            newQuestion();
+        });
+
+        // Запускаем предзагрузку при загрузке страницы
+        window.addEventListener('load', () => {
+            preloadAllSounds();
+            updateSelectedInfo('А');
+        });
+    </script>
+</body>
+</html>
