@@ -2,10 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Учим алфавит - Быстрая озвучка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Учим алфавит - Говорящие буквы</title>
     <style>
-        /* Стили такие же, как в предыдущей версии */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,10 +16,12 @@
             font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 8px;
+            touch-action: manipulation;
         }
 
         .game-container {
@@ -62,6 +63,7 @@
             box-shadow: 0 5px 0 #999;
             flex: 1;
             min-width: 130px;
+            touch-action: manipulation;
         }
 
         .mode-btn.active {
@@ -95,6 +97,7 @@
             cursor: pointer;
             border: 2px solid #ffd966;
             box-shadow: 0 3px 0 #2c3e50;
+            touch-action: manipulation;
         }
 
         .sound-toggle:active {
@@ -111,6 +114,7 @@
             border: 2px solid #4b7bec;
         }
 
+        /* Режим 1 - Алфавит */
         .alphabet-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -135,6 +139,7 @@
             align-items: center;
             justify-content: center;
             aspect-ratio: 1 / 1;
+            touch-action: manipulation;
             position: relative;
         }
 
@@ -161,6 +166,7 @@
             background: linear-gradient(145deg, #fff0f0, #ffe0e0);
         }
 
+        /* Режим 2 - Викторина */
         .quiz-container {
             background: #f7d794;
             border-radius: 40px;
@@ -204,6 +210,7 @@
             transition: all 0.1s;
             box-shadow: 0 6px 0 #2c3e50;
             text-transform: uppercase;
+            touch-action: manipulation;
             width: 100%;
         }
 
@@ -249,6 +256,7 @@
             width: 100%;
             max-width: 280px;
             margin: 5px auto;
+            touch-action: manipulation;
         }
 
         .quiz-next:active {
@@ -307,29 +315,6 @@
             border: 3px solid #b33939;
         }
 
-        .loading-indicator {
-            font-size: 1rem;
-            color: #4b7bec;
-            margin: 5px 0;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            margin: 5px 0;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: #4CAF50;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
         footer {
             margin-top: 12px;
             font-size: 1rem;
@@ -338,6 +323,12 @@
 
         .hidden {
             display: none;
+        }
+
+        @media (max-width: 380px) {
+            h1 { font-size: 1.8rem; }
+            .letter-card { font-size: 1.8rem; }
+            .mode-btn { font-size: 1rem; padding: 12px 10px; min-width: 110px; }
         }
     </style>
 </head>
@@ -355,13 +346,7 @@
             <span id="soundStatus" class="sound-status">✅ Звук работает</span>
         </div>
 
-        <!-- Индикатор загрузки -->
-        <div id="loadingIndicator" class="loading-indicator">⏳ Загрузка звуков...</div>
-        <div id="progressBar" class="progress-bar">
-            <div id="progressFill" class="progress-bar-fill"></div>
-        </div>
-
-        <!-- Режим 1: Алфавит -->
+        <!-- Режим 1: Алфавит (ПОЛНАЯ ОЗВУЧКА БУКВ) -->
         <div id="mode1" class="game-area">
             <div id="alphabetGrid" class="alphabet-grid"></div>
 
@@ -377,7 +362,7 @@
             </div>
         </div>
 
-        <!-- Режим 2: Викторина -->
+        <!-- Режим 2: Викторина (ТОЛЬКО ЗВУКИ ПРАВИЛЬНО/НЕПРАВИЛЬНО) -->
         <div id="mode2" class="game-area hidden">
             <div class="quiz-container">
                 <div class="quiz-question" id="questionText">Какая буква?</div>
@@ -393,13 +378,12 @@
             </div>
         </div>
 
-        <footer>
-            📖 Режим 1: буквы говорят (быстро!) | 🎮 Режим 2: звуки ответов
+        
         </footer>
     </div>
 
     <script>
-        // ========== ДАННЫЕ ==========
+        // Словарь с буквами
         const alphabetData = {
             'А': ['Арбуз', '🍉'], 'Б': ['Барабан', '🥁'], 'В': ['Велосипед', '🚲'],
             'Г': ['Гриб', '🍄'], 'Д': ['Дом', '🏠'], 'Е': ['Енот', '🦝'],
@@ -410,145 +394,112 @@
             'С': ['Сова', '🦉'], 'Т': ['Тигр', '🐯'], 'У': ['Улитка', '🐌'],
             'Ф': ['Фламинго', '🦩'], 'Х': ['Хомяк', '🐹'], 'Ц': ['Цыпленок', '🐥'],
             'Ч': ['Черепаха', '🐢'], 'Ш': ['Шарик', '🎈'], 'Щ': ['Щенок', '🐕'],
-            'Ъ': ['Подъезд', '🚪'], 'Ы': ['Сыр', '🧀'], 'Ь': ['Лось', '🫎'],
+            'Ъ': ['Подъезд', '🚪'], 'Ы': ['Сыр', '🧀'], 'Ь': ['Лось', '🦌'],
             'Э': ['Эскимо', '🍦'], 'Ю': ['Юла', '🪀'], 'Я': ['Яблоко', '🍎']
         };
 
         const letters = Object.keys(alphabetData);
         const vowels = ['А','Е','Ё','И','О','У','Ы','Э','Ю','Я'];
 
-        // ========== НАСТРОЙКА ЗВУКОВ ==========
+        // ========== НАСТРОЙКА ЗВУКОВ С РУССКИМИ НАЗВАНИЯМИ ==========
+        // Пути к звукам букв в русской раскладке (для режима 1)
         const letterSoundFiles = {
-            'А': 'sounds/а.mp3', 'б': 'sounds/Б.mp3', 'в': 'sounds/В.mp3',
-            'Г': 'sounds/г.mp3', 'д': 'sounds/Д.mp3', 'е': 'sounds/Е.mp3',
-            'Ё': 'sounds/ё.mp3', 'ж': 'sounds/Ж.mp3', 'з': 'sounds/З.mp3',
-            'И': 'sounds/и.mp3', 'й': 'sounds/Й.mp3', 'к': 'sounds/К.mp3',
-            'Л': 'sounds/л.mp3', 'м': 'sounds/М.mp3', 'н': 'sounds/Н.mp3',
-            'О': 'sounds/о.mp3', 'п': 'sounds/П.mp3', 'р': 'sounds/Р.mp3',
-            'С': 'sounds/с.mp3', 'т': 'sounds/Т.mp3', 'у': 'sounds/У.mp3',
-            'Ф': 'sounds/ф.mp3', 'х': 'sounds/Х.mp3', 'ц': 'sounds/Ц.mp3',
-            'Ч': 'sounds/ч.mp3', 'ш': 'sounds/Ш.mp3', 'щ': 'sounds/Щ.mp3',
-            'Ъ': 'sounds/ъ.mp3', 'ы': 'sounds/Ы.mp3', 'ь': 'sounds/Ь.mp3',
-            'Э': 'sounds/э.mp3', 'ю': 'sounds/Ю.mp3', 'я': 'sounds/Я.mp3'
+            'А': 'sounds/А.mp3',    // обрати внимание: русская А
+            'Б': 'sounds/Б.mp3',
+            'В': 'sounds/В.mp3',
+            'Г': 'sounds/Г.mp3',
+            'Д': 'sounds/Д.mp3',
+            'Е': 'sounds/Е.mp3',
+            'Ё': 'sounds/Ё.mp3',
+            'Ж': 'sounds/Ж.mp3',
+            'З': 'sounds/З.mp3',
+            'И': 'sounds/И.mp3',
+            'Й': 'sounds/Й.mp3',
+            'К': 'sounds/К.mp3',
+            'Л': 'sounds/Л.mp3',
+            'М': 'sounds/М.mp3',
+            'Н': 'sounds/Н.mp3',
+            'О': 'sounds/О.mp3',
+            'П': 'sounds/П.mp3',
+            'Р': 'sounds/Р.mp3',
+            'С': 'sounds/С.mp3',
+            'Т': 'sounds/Т.mp3',
+            'У': 'sounds/У.mp3',
+            'Ф': 'sounds/Ф.mp3',
+            'Х': 'sounds/Х.mp3',
+            'Ц': 'sounds/Ц.mp3',
+            'Ч': 'sounds/Ч.mp3',
+            'Ш': 'sounds/Ш.mp3',
+            'Щ': 'sounds/Щ.mp3',
+            'Ъ': 'sounds/Ъ.mp3',
+            'Ы': 'sounds/Ы.mp3',
+            'Ь': 'sounds/Ь.mp3',
+            'Э': 'sounds/Э.mp3',
+            'Ю': 'sounds/Ю.mp3',
+            'Я': 'sounds/Я.mp3'
         };
 
+        // Звуки для викторины (режим 2) - тоже могут быть с русскими названиями
         const quizSoundFiles = {
-            'correct': 'sounds/правильно.mp3',
-            'wrong': 'sounds/неправильно.mp3'
+            'correct': 'sounds/правильно.mp3',  // или correct.mp3 - как у вас названо
+            'wrong': 'sounds/неправильно.mp3'    // или wrong.mp3 - как у вас названо
         };
 
-        // ========== ПРЕДЗАГРУЗКА ЗВУКОВ ==========
-        // Хранилище предзагруженных аудио
-        const preloadedAudios = {};
-        let totalSounds = 0;
-        let loadedSounds = 0;
-        let soundsLoaded = false;
+        // Хранилище для аудио объектов
+        const audioCache = {};
+        
+        // Состояние звука
+        let soundEnabled = true;
+        
+        // Текущий режим
+        let currentMode = 1; // 1 - обучение, 2 - викторина
 
-        // Элементы
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-
-        // Функция предзагрузки одного звука
-        function preloadSound(key, path) {
-            return new Promise((resolve, reject) => {
-                if (!path) {
-                    resolve();
-                    return;
-                }
-                
-                const audio = new Audio();
-                
-                audio.addEventListener('canplaythrough', () => {
-                    preloadedAudios[key] = audio;
-                    loadedSounds++;
-                    updateProgress();
-                    resolve();
-                }, { once: true });
-                
-                audio.addEventListener('error', (e) => {
-                    console.warn(`Не удалось загрузить ${path}:`, e);
-                    loadedSounds++;
-                    updateProgress();
-                    resolve(); // Не reject, чтобы продолжить загрузку остальных
-                });
-                
-                audio.preload = 'auto';
-                audio.src = path;
-                audio.load();
-            });
+        // Функция для проверки существования файла (опционально)
+        function checkSoundExists(soundPath) {
+            // Эта функция просто пробует загрузить звук
+            // Если файла нет, браузер выдаст ошибку в консоль, но игра продолжит работать
+            return true;
         }
 
-        // Обновление прогресса
-        function updateProgress() {
-            const percent = (loadedSounds / totalSounds) * 100;
-            progressFill.style.width = percent + '%';
+        // Функция воспроизведения звука (общая)
+        function playSound(soundPath) {
+            if (!soundEnabled || !soundPath) return;
             
-            if (loadedSounds === totalSounds) {
-                loadingIndicator.textContent = '✅ Все звуки загружены! Можно играть';
-                setTimeout(() => {
-                    loadingIndicator.style.opacity = '0';
-                    progressBar.style.opacity = '0';
-                }, 1000);
-                soundsLoaded = true;
+            console.log('Пробуем воспроизвести:', soundPath); // для отладки
+            
+            if (audioCache[soundPath]) {
+                audioCache[soundPath].currentTime = 0;
+                audioCache[soundPath].play().catch(e => console.log('Не удалось воспроизвести (возможно нет файла):', soundPath));
             } else {
-                loadingIndicator.textContent = `⏳ Загрузка звуков: ${loadedSounds}/${totalSounds}`;
+                const audio = new Audio(soundPath);
+                audio.play().catch(e => console.log('Не удалось воспроизвести (возможно нет файла):', soundPath));
+                audioCache[soundPath] = audio;
             }
         }
 
-        // Предзагрузка всех звуков
-        async function preloadAllSounds() {
-            // Собираем все звуки для предзагрузки
-            const allSounds = [];
-            
-            // Звуки букв
-            Object.entries(letterSoundFiles).forEach(([key, path]) => {
-                if (path) {
-                    allSounds.push({ key: `letter_${key}`, path });
-                }
-            });
-            
-            // Звуки викторины
-            Object.entries(quizSoundFiles).forEach(([key, path]) => {
-                if (path) {
-                    allSounds.push({ key: `quiz_${key}`, path });
-                }
-            });
-            
-            totalSounds = allSounds.length;
-            progressBar.style.display = 'block';
-            
-            // Загружаем все звуки параллельно
-            await Promise.all(allSounds.map(sound => preloadSound(sound.key, sound.path)));
-        }
-
-        // Функция мгновенного воспроизведения
-        function playPreloadedSound(key) {
+        // Функция воспроизведения звука буквы (ТОЛЬКО для режима 1)
+        function playLetterSound(letter) {
+            if (currentMode !== 1) return; // Звуки букв ТОЛЬКО в режиме 1
             if (!soundEnabled) return;
             
-            const audio = preloadedAudios[key];
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
-            } else {
-                console.warn(`Звук ${key} не предзагружен`);
+            const soundPath = letterSoundFiles[letter];
+            if (soundPath) {
+                playSound(soundPath);
             }
         }
 
-        function playLetterSound(letter) {
-            if (currentMode !== 1) return;
-            playPreloadedSound(`letter_${letter}`);
-        }
-
+        // Функция воспроизведения звука викторины (режим 2)
         function playQuizSound(type) {
-            if (currentMode !== 2) return;
-            playPreloadedSound(`quiz_${type}`);
+            if (currentMode !== 2) return; // Звуки викторины ТОЛЬКО в режиме 2
+            if (!soundEnabled) return;
+            
+            const soundPath = quizSoundFiles[type];
+            if (soundPath) {
+                playSound(soundPath);
+            }
         }
 
-        // ========== ОСТАЛЬНАЯ ЛОГИКА ==========
-        let soundEnabled = true;
-        let currentMode = 1;
-
+        // Элементы
         const grid = document.getElementById('alphabetGrid');
         const selectedLetterSpan = document.getElementById('selectedLetter');
         const exampleWordDiv = document.getElementById('exampleWord');
@@ -558,6 +509,8 @@
         const mode2Btn = document.getElementById('mode2Btn');
         const soundToggle = document.getElementById('soundToggle');
         const soundStatus = document.getElementById('soundStatus');
+        
+        // Элементы викторины
         const quizOptions = document.getElementById('quizOptions');
         const quizFeedback = document.getElementById('quizFeedback');
         const nextBtn = document.getElementById('nextQuestionBtn');
@@ -565,20 +518,28 @@
         const quizImage = document.getElementById('quizImage');
         const questionText = document.getElementById('questionText');
 
+        // Переменные викторины
         let currentCorrectLetter = '';
         let score = 0;
         let canAnswer = true;
 
-        // Управление звуком
+        // ========== УПРАВЛЕНИЕ ЗВУКОМ ==========
         soundToggle.addEventListener('click', (e) => {
             e.preventDefault();
             soundEnabled = !soundEnabled;
-            soundToggle.textContent = soundEnabled ? '🔊 Звук вкл' : '🔇 Звук выкл';
-            soundStatus.textContent = soundEnabled ? '✅ Звук работает' : '🔇 Звук отключен';
-            soundStatus.style.color = soundEnabled ? '#4CAF50' : '#999';
+            
+            if (soundEnabled) {
+                soundToggle.textContent = '🔊 Звук вкл';
+                soundStatus.textContent = '✅ Звук работает';
+                soundStatus.style.color = '#4CAF50';
+            } else {
+                soundToggle.textContent = '🔇 Звук выкл';
+                soundStatus.textContent = '🔇 Звук отключен';
+                soundStatus.style.color = '#999';
+            }
         });
 
-        // Режим 1
+        // ========== РЕЖИМ 1: АЛФАВИТ (ПОЛНАЯ ОЗВУЧКА) ==========
         function updateSelectedInfo(letter) {
             selectedLetterSpan.textContent = letter;
             if (alphabetData[letter]) {
@@ -586,16 +547,24 @@
                 exampleWordDiv.innerHTML = `${emoji} ${word} ${emoji}`;
             }
             
+            // В режиме 1 проигрываем звук буквы
             playLetterSound(letter);
+            
+            // Визуальный эффект "говорящей" буквы
             highlightSpeakingLetter(letter);
         }
 
         function highlightSpeakingLetter(letter) {
             document.querySelectorAll('.letter-card').forEach(card => {
                 card.classList.remove('speaking');
+            });
+            
+            document.querySelectorAll('.letter-card').forEach(card => {
                 if (card.textContent.trim() === letter) {
                     card.classList.add('speaking');
-                    setTimeout(() => card.classList.remove('speaking'), 500);
+                    setTimeout(() => {
+                        card.classList.remove('speaking');
+                    }, 500);
                 }
             });
         }
@@ -604,13 +573,17 @@
         letters.forEach(letter => {
             const card = document.createElement('div');
             card.className = 'letter-card';
-            if (vowels.includes(letter)) card.classList.add('vowel');
+            if (vowels.includes(letter)) {
+                card.classList.add('vowel');
+            }
+            
             card.innerHTML = `${letter}<span class="sound-indicator">🔊</span>`;
             
             card.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (currentMode === 1) {
                     updateSelectedInfo(letter);
+                    
                     card.style.transform = 'translateY(4px)';
                     card.style.boxShadow = '0 1px 0 #2c3e50';
                     setTimeout(() => {
@@ -622,14 +595,16 @@
             grid.appendChild(card);
         });
 
-        // Режим 2
+        // ========== РЕЖИМ 2: ВИКТОРИНА (ТОЛЬКО ЗВУКИ ОТВЕТОВ) ==========
         function getRandomLetters(exclude, count) {
             const available = letters.filter(l => l !== exclude);
             const result = [];
             while (result.length < count && available.length > 0) {
                 const randomIndex = Math.floor(Math.random() * available.length);
                 const letter = available[randomIndex];
-                if (!result.includes(letter)) result.push(letter);
+                if (!result.includes(letter)) {
+                    result.push(letter);
+                }
             }
             return result;
         }
@@ -667,27 +642,33 @@
                     canAnswer = false;
                     
                     if (letter === currentCorrectLetter) {
+                        // Правильный ответ - звук correct
                         playQuizSound('correct');
+                        
                         btn.classList.add('correct');
                         quizFeedback.innerHTML = '✅ Правильно! Молодец! ⭐';
                         score += 1;
                         scoreDisplay.textContent = `⭐ ${score}`;
+                        
+                        document.querySelectorAll('.quiz-option').forEach(b => {
+                            b.disabled = true;
+                            b.classList.add('disabled');
+                        });
                     } else {
+                        // Неправильный ответ - звук wrong
                         playQuizSound('wrong');
+                        
                         btn.classList.add('wrong');
                         quizFeedback.innerHTML = `❌ Неправильно. Это буква ${currentCorrectLetter}!`;
                         
                         document.querySelectorAll('.quiz-option').forEach(b => {
+                            b.disabled = true;
+                            b.classList.add('disabled');
                             if (b.textContent === currentCorrectLetter) {
                                 b.classList.add('correct');
                             }
                         });
                     }
-                    
-                    document.querySelectorAll('.quiz-option').forEach(b => {
-                        b.disabled = true;
-                        b.classList.add('disabled');
-                    });
                     
                     nextBtn.classList.remove('hidden');
                 });
@@ -705,7 +686,7 @@
             newQuestion();
         });
 
-        // Переключение режимов
+        // ========== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ==========
         mode1Btn.addEventListener('click', (e) => {
             e.preventDefault();
             currentMode = 1;
@@ -722,16 +703,18 @@
             mode2.classList.remove('hidden');
             mode1Btn.classList.remove('active');
             mode2Btn.classList.add('active');
+            
             score = 0;
             scoreDisplay.textContent = '⭐ 0';
             newQuestion();
         });
 
-        // Запускаем предзагрузку при загрузке страницы
-        window.addEventListener('load', () => {
-            preloadAllSounds();
-            updateSelectedInfo('А');
-        });
+        // Начальная буква
+        updateSelectedInfo('А');
+
+        // Выводим в консоль список ожидаемых файлов для проверки
+        console.log('Ожидаемые файлы букв:', letterSoundFiles);
+        console.log('Ожидаемые файлы викторины:', quizSoundFiles);
     </script>
 </body>
 </html>
